@@ -1,220 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>CoverMe</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Me</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+        }
 
-<style>
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-  }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
-  .app {
-    width: 430px;
-    background: white;
-    border-radius: 20px;
-    padding: 22px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  }
+        h1, h2, h3 {
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
 
-  h1 {
-    text-align:center;
-    margin: 0;
-  }
+        section {
+            padding: 20px;
+            margin: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
 
-  .subtitle {
-    text-align:center;
-    font-size: 12px;
-    color: gray;
-    margin-bottom: 15px;
-  }
+        section:hover {
+            transform: scale(1.02);
+        }
 
-  .modes {
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    justify-content:center;
-    margin-bottom: 12px;
-  }
-
-  .mode {
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid #ddd;
-    background: #f5f5f5;
-    font-size: 11px;
-    cursor:pointer;
-  }
-
-  .mode.active {
-    background:#667eea;
-    color:white;
-    border-color: transparent;
-  }
-
-  select, textarea {
-    width:100%;
-    margin-top:10px;
-    padding:10px;
-    border-radius:12px;
-    border:1px solid #e5e5e5;
-    font-size:13px;
-  }
-
-  textarea {
-    height:75px;
-    resize:none;
-  }
-
-  button {
-    width:100%;
-    margin-top:10px;
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    background:#667eea;
-    color:white;
-    font-size:14px;
-    cursor:pointer;
-  }
-
-  .copy {
-    background:#22c55e;
-  }
-
-  .output {
-    margin-top:12px;
-    background:#f6f7fb;
-    padding:12px;
-    border-radius:12px;
-    min-height:70px;
-    font-size:13px;
-    line-height:1.4;
-  }
-
-  .history {
-    margin-top:10px;
-    font-size:11px;
-    color:gray;
-    max-height:80px;
-    overflow:auto;
-  }
-</style>
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            section {
+                margin: 5px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="app">
-
-  <h1>CoverMe</h1>
-  <div class="subtitle">Say it better instantly</div>
-
-  <div class="modes">
-    <button class="mode active" onclick="setMode('excuse',event)">😅 Excuse</button>
-    <button class="mode" onclick="setMode('pro',event)">💼 Pro</button>
-    <button class="mode" onclick="setMode('soft',event)">💔 Soft Exit</button>
-    <button class="mode" onclick="setMode('savage',event)">🔥 Savage</button>
-    <button class="mode" onclick="setMode('message',event)">📩 Message</button>
-  </div>
-
-  <select id="tone">
-    <option>Friendly</option>
-    <option>Professional</option>
-    <option>Short</option>
-    <option>Polite</option>
-    <option>Savage</option>
-  </select>
-
-  <textarea id="input" placeholder="Type what you want to say..."></textarea>
-
-  <button onclick="generate()">Generate</button>
-
-  <div class="output" id="output">Your message will appear here...</div>
-
-  <button class="copy" onclick="copyText()">Copy</button>
-  <button onclick="generate()">🔁 Regenerate</button>
-
-  <div class="history" id="history"></div>
-
-</div>
-
-<script>
-let mode = "excuse";
-
-function setMode(m, e){
-  mode = m;
-  document.querySelectorAll(".mode").forEach(b => b.classList.remove("active"));
-  e.target.classList.add("active");
-}
-
-function pick(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-
-function generate(){
-  const output = document.getElementById("output");
-  output.innerText = "Thinking... 🤖";
-
-  setTimeout(() => {
-
-    const tone = document.getElementById("tone").value;
-    const input = document.getElementById("input").value;
-
-    const intro = {
-      Friendly:["Hey!","Hi!","Just wanted to say"],
-      Professional:["Hello,","I hope you're well.","Thank you for your time,"],
-      Short:[""],
-      Polite:["I hope you're doing well.","Just a quick note,"],
-      Savage:["Let’s be honest,","To be direct,","Look,"]
-    };
-
-    let result = "";
-
-    if(mode === "message"){
-      result =
-        pick(intro[tone]) +
-        " " +
-        (input || "I’ll get back to you soon.");
-
-    } else if(mode === "excuse"){
-      result = pick(intro[tone]) + " I ran into an unexpected issue and couldn’t complete it on time.";
-
-    } else if(mode === "pro"){
-      result = pick(intro[tone]) + " I’ll take care of this and update you shortly.";
-
-    } else if(mode === "soft"){
-      result = pick(intro[tone]) + " I won’t be able to continue with this.";
-
-    } else if(mode === "savage"){
-      result = pick(intro[tone]) + " This situation could have been handled better.";
-    }
-
-    output.innerText = result;
-
-    // HISTORY
-    document.getElementById("history").innerHTML += "• " + result + "<br>";
-
-  }, 600);
-}
-
-function copyText(){
-  const text = document.getElementById("output").innerText;
-  navigator.clipboard.writeText(text);
-
-  const btn = document.querySelector(".copy");
-  btn.innerText = "Copied ✔";
-
-  setTimeout(() => {
-    btn.innerText = "Copy";
-  }, 1000);
-}
-</script>
-
+    <h1>Welcome to Cover Me</h1>
+    <section>
+        <h2>Section 1</h2>
+        <p>This is an introduction to our services.</p>
+    </section>
+    <section>
+        <h2>Section 2</h2>
+        <p>Learn more about our features.</p>
+    </section>
+    <section>
+        <h2>Section 3</h2>
+        <p>Contact us for more information.</p>
+    </section>
 </body>
 </html>
