@@ -16,7 +16,7 @@
   }
 
   .app {
-    width: 420px;
+    width: 430px;
     background: white;
     border-radius: 20px;
     padding: 22px;
@@ -26,81 +26,84 @@
   h1 {
     text-align:center;
     margin: 0;
-    font-size: 26px;
   }
 
   .subtitle {
     text-align:center;
     font-size: 12px;
     color: gray;
-    margin-top: 4px;
-    margin-bottom: 18px;
+    margin-bottom: 15px;
   }
 
-  /* MODE PILL BAR */
   .modes {
     display:flex;
     flex-wrap:wrap;
     gap:6px;
     justify-content:center;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .mode {
     padding: 6px 10px;
     border-radius: 999px;
     border: 1px solid #ddd;
-    background: #f7f7f7;
+    background: #f5f5f5;
     font-size: 11px;
     cursor:pointer;
-    transition: 0.2s;
   }
 
   .mode.active {
-    background: #667eea;
-    color: white;
+    background:#667eea;
+    color:white;
     border-color: transparent;
   }
 
-  textarea, select {
+  select, textarea {
     width:100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 12px;
-    border: 1px solid #e5e5e5;
-    font-size: 13px;
-    outline: none;
+    margin-top:10px;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid #e5e5e5;
+    font-size:13px;
   }
 
   textarea {
-    height: 80px;
+    height:75px;
     resize:none;
   }
 
   button {
     width:100%;
-    margin-top: 12px;
-    padding: 12px;
+    margin-top:10px;
+    padding:12px;
     border:none;
-    border-radius: 12px;
+    border-radius:12px;
     background:#667eea;
     color:white;
-    font-size: 14px;
+    font-size:14px;
     cursor:pointer;
-  }
-
-  .output {
-    margin-top: 14px;
-    background: #f6f7fb;
-    padding: 14px;
-    border-radius: 14px;
-    min-height: 70px;
-    font-size: 13px;
-    line-height: 1.4;
   }
 
   .copy {
     background:#22c55e;
+  }
+
+  .output {
+    margin-top:12px;
+    background:#f6f7fb;
+    padding:12px;
+    border-radius:12px;
+    min-height:70px;
+    font-size:13px;
+    line-height:1.4;
+  }
+
+  .history {
+    margin-top:10px;
+    font-size:11px;
+    color:gray;
+    max-height:80px;
+    overflow:auto;
   }
 </style>
 </head>
@@ -110,7 +113,7 @@
 <div class="app">
 
   <h1>CoverMe</h1>
-  <div class="subtitle">Write better messages instantly</div>
+  <div class="subtitle">Say it better instantly</div>
 
   <div class="modes">
     <button class="mode active" onclick="setMode('excuse',event)">😅 Excuse</button>
@@ -135,6 +138,9 @@
   <div class="output" id="output">Your message will appear here...</div>
 
   <button class="copy" onclick="copyText()">Copy</button>
+  <button onclick="generate()">🔁 Regenerate</button>
+
+  <div class="history" id="history"></div>
 
 </div>
 
@@ -152,44 +158,61 @@ function pick(arr){
 }
 
 function generate(){
-  const tone = document.getElementById("tone").value;
-  const input = document.getElementById("input").value;
+  const output = document.getElementById("output");
+  output.innerText = "Thinking... 🤖";
 
-  const intro = {
-    Friendly:["Hey!","Hi!","Just wanted to say"],
-    Professional:["Hello,","I hope you're well.","Thank you for your time,"],
-    Short:[""],
-    Polite:["I hope you're doing well.","Just a quick note,"],
-    Savage:["Let’s be honest,","To be direct,","Look,"]
-  };
+  setTimeout(() => {
 
-  let result = "";
+    const tone = document.getElementById("tone").value;
+    const input = document.getElementById("input").value;
 
-  if(mode === "message"){
-    result =
-      pick(intro[tone]) +
-      " " +
-      (input || "I’ll get back to you soon.");
+    const intro = {
+      Friendly:["Hey!","Hi!","Just wanted to say"],
+      Professional:["Hello,","I hope you're well.","Thank you for your time,"],
+      Short:[""],
+      Polite:["I hope you're doing well.","Just a quick note,"],
+      Savage:["Let’s be honest,","To be direct,","Look,"]
+    };
 
-  } else if(mode === "excuse"){
-    result = pick(intro[tone]) + " I ran into an unexpected issue and couldn’t complete it on time.";
+    let result = "";
 
-  } else if(mode === "pro"){
-    result = pick(intro[tone]) + " I’ll take care of this and update you shortly.";
+    if(mode === "message"){
+      result =
+        pick(intro[tone]) +
+        " " +
+        (input || "I’ll get back to you soon.");
 
-  } else if(mode === "soft"){
-    result = pick(intro[tone]) + " I won’t be able to continue with this.";
+    } else if(mode === "excuse"){
+      result = pick(intro[tone]) + " I ran into an unexpected issue and couldn’t complete it on time.";
 
-  } else if(mode === "savage"){
-    result = pick(intro[tone]) + " This situation could have been handled much better.";
-  }
+    } else if(mode === "pro"){
+      result = pick(intro[tone]) + " I’ll take care of this and update you shortly.";
 
-  document.getElementById("output").innerText = result;
+    } else if(mode === "soft"){
+      result = pick(intro[tone]) + " I won’t be able to continue with this.";
+
+    } else if(mode === "savage"){
+      result = pick(intro[tone]) + " This situation could have been handled better.";
+    }
+
+    output.innerText = result;
+
+    // HISTORY
+    document.getElementById("history").innerHTML += "• " + result + "<br>";
+
+  }, 600);
 }
 
 function copyText(){
-  navigator.clipboard.writeText(document.getElementById("output").innerText);
-  alert("Copied!");
+  const text = document.getElementById("output").innerText;
+  navigator.clipboard.writeText(text);
+
+  const btn = document.querySelector(".copy");
+  btn.innerText = "Copied ✔";
+
+  setTimeout(() => {
+    btn.innerText = "Copy";
+  }, 1000);
 }
 </script>
 
